@@ -1,1 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --primary: #0d7a5f;           /* Verde escuro dos botões e destaques */
+  --primary-light: #e6f4f1;     /* Fundo verde claro do item ativo */
+  --bg-app: #f4f5f8;            /* Fundo principal da página */
+  --bg-card: #ffffff;           /* Fundo dos cartões e sidebar */
+  --text-main: #1f2937;         /* Cor do texto principal */
+  --text-muted: #6b7280;        /* Cor dos textos secundários/subtítulos */
+  --border-color: #e5e7eb;      /* Cor das linhas de divisão */
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+}
