@@ -1,0 +1,66 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>VetCare</h2>
+      <p>Crie sua conta para começar</p>
+    </div>
+
+    @if (erroMensagem) {
+  <div class="alert-error">
+    {{ erroMensagem }}
+  </div>
+}
+
+@if (sucessoMensagem) {
+  <div class="alert-success">
+    {{ sucessoMensagem }}
+  </div>
+}
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nome">Nome Completo</label>
+        <input 
+          type="text" 
+          id="nome" 
+          [(ngModel)]="nome" 
+          name="nome" 
+          placeholder="Seu nome completo" 
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email" 
+          placeholder="seu@email.com" 
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input 
+          type="password" 
+          id="senha" 
+          [(ngModel)]="senha" 
+          name="senha" 
+          placeholder="••••••••" 
+          required 
+        />
+      </div>
+
+      <button type="submit" [disabled]="carregando">
+        {{ carregando ? 'Cadastrando...' : 'Criar Conta' }}
+      </button>
+
+      <div class="footer-link">
+        Já tem uma conta? <a routerLink="/login">Faça Login</a>
+      </div>
+    </form>
+  </div>
+</div>

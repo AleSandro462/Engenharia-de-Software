@@ -1,1 +1,97 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <!-- Cabeçalho do Dashboard -->
+  <header class="dashboard-header">
+    <div class="title-area">
+      <div class="title-row">
+        <h1>Visão Geral</h1>
+        <span class="badge-live">• TEMPO REAL</span>
+      </div>
+      <p class="subtitle">Acompanhamento operacional da clínica</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-outline">📅 Hoje • 24 Out 2024</button>
+      <button class="btn-outline">👤 Check-in rápido</button>
+      <button class="btn-outline">📥 Exportar</button>
+
+    </div>
+  </header>
+
+  <!-- Grid com os 4 Cards de Indicadores -->
+  <section class="metrics-grid">
+    <!-- Card 1 -->
+    <div class="metric-card">
+      <div class="card-header">
+        <span>CONSULTAS HOJE</span>
+        <span class="icon-box icon-green">📅</span>
+      </div>
+      <div class="card-value">{{ metricsExample.consultasHoje }}</div>
+      <div class="card-footer green-text">
+        <span class="badge-growth">↗ +12%</span> vs ontem
+      </div>
+      <small class="card-subtext">{{ metricsExample.consultasRestantes }} restantes no período da tarde</small>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="metric-card">
+      <div class="card-header">
+        <span>ATENDIMENTOS CONCLUÍDOS</span>
+        <span class="icon-box icon-teal">✓</span>
+      </div>
+      <div class="card-value">
+        {{ metricsExample.atendimentosConcluidos }} <span class="sub-value">/ {{ metricsExample.consultasHoje }}</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 50%;"></div>
+      </div>
+      <small class="card-subtext">50% concluído • Média 26 min/cons.</small>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="metric-card">
+      <div class="card-header">
+        <span>PRÓXIMAS CONSULTAS</span>
+        <span class="icon-box icon-blue">🕒</span>
+      </div>
+      <div class="card-value">{{ metricsExample.proximasConsultas }}</div>
+      <div class="card-tag tag-blue">● Próxima em 15 min</div>
+      <small class="card-subtext">{{ metricsExample.proximaDetalhe }}</small>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="metric-card">
+      <div class="card-header">
+        <span>RECEITA DO DIA</span>
+        <span class="icon-box icon-green">💵</span>
+      </div>
+      <div class="card-value">
+        R$ {{ metricsExample.receitaDia.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+      </div>
+      <div class="card-footer green-text">
+        <span class="badge-growth">↗ {{ metricsExample.metaDiaria }}</span> meta diária
+      </div>
+      <small class="card-subtext">R$ 4.200 proced. • R$ 2.640 prod.</small>
+    </div>
+  </section>
+
+  <!-- Área Principal (Tabela e Widgets) -->
+  <div class="dashboard-body">
+    <div class="main-column">
+      <table>
+        <thead>
+          <tr>
+           <th>Horário</th>
+           <th>Paciente</th>
+           <th>Tutor</th>
+           <th>Veterinário</th>
+          </tr>
+        </thead>
+          
+
+      </table>
+    </div>
+    <div class="side-column">
+      <!-- Próximo passo: Widgets Laterais -->
+    </div>
+  </div>
+</div>

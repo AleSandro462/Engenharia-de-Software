@@ -117,3 +117,21 @@
   height: 32px;
   border-radius: 50%;
 }
+.quadrado {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 800px;
+  background-color: rgb(220, 242, 230);
+  border-radius: 20px;
+  z-index: 1000;
+}
+ 
+.btn-fechar{
+  color: #07160d;
+  
+
+
+}
