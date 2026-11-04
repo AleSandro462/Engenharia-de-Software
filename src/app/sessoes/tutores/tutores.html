@@ -1,1 +1,28 @@
-<p>tutores works!</p>
+<h2>Tutores</h2>
+
+@if (erro()) {
+  <p>{{ erro() }}</p>
+}
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>CPF</th>
+      <th>Telefone</th>
+      <th>Pets</th>
+    </tr>
+</thead>
+  <tbody>
+    @for (t of tutores(); track t.id) {
+      <tr>
+        <td>{{ t.nome }}</td>
+        <td>{{ t.cpf }}</td>
+        <td>{{ t.telefone }}</td>
+        <td>{{ t.animais.length }}</td>
+      </tr>
+    } @empty {
+      <tr><td colspan="4">Nenhum tutor cadastrado.</td></tr>
+    }
+  </tbody>
+</table>

@@ -32,7 +32,6 @@ export class LoginComponent {
     this.erroMensagem = ''; 
 
     this.authService.login({ 
-      nome: '', 
       email: this.email, 
       senha: this.senha 
     }).subscribe({
