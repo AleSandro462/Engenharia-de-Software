@@ -39,3 +39,14 @@ class Usuario(Base):
     email = Column(String(120), unique=True, nullable=False)
     senha_hash = Column(String(255), nullable=False)
     perfil = Column(String(20), nullable=False, default="recepcionista")
+
+
+class Veterinario(Base):
+    __tablename__ = "veterinarios"
+     
+    id = Column(Integer, primary_key=True, index=True) 
+    nome = Column(String, index=True, nullable=False) # nullable=False significa NOT NULL (é obrigatório)
+    crmv = Column(String, unique=True, index=True, nullable=False) # unique=True impede de cadastrar dois CRMs iguais
+    telefone = Column(String, nullable=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    especialidade = Column(String, nullable=True)
