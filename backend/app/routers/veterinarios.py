@@ -22,3 +22,8 @@ def criar_veterinario(vet: VeterinarioCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(novo_vet) 
     return novo_vet
+
+@router.get("/", response_model=list[VeterinarioResponse])
+def listar_veterinarios(db: Session = Depends(get_db)):
+    veterinarios = db.query(Veterinario).all()
+    return veterinarios
