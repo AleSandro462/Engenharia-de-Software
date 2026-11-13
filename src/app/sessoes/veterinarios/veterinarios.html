@@ -1,0 +1,28 @@
+<h2>Veterinários</h2>
+
+@if (erro()) {
+  <p>{{ erro() }}</p>
+}
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>CRMV</th>
+      <th>Telefone</th>
+      <th>E-mail</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (v of veterinarios(); track v.id) {
+      <tr>
+        <td>{{ v.nome }}</td>
+        <td>{{ v.crmv }}</td>
+        <td>{{ v.telefone || '-' }}</td>
+        <td>{{ v.email }}</td>
+      </tr>
+    } @empty {
+      <tr><td colspan="4">Nenhum veterinário cadastrado.</td></tr>
+    }
+  </tbody>
+</table>
