@@ -10,6 +10,7 @@ router = APIRouter(
     tags=["Veterinários"]
 )
 
+
 @router.post("/", response_model=VeterinarioResponse)
 def criar_veterinario(vet: VeterinarioCreate, db: Session = Depends(get_db)):
     db_vet = db.query(Veterinario).filter(Veterinario.crmv == vet.crmv).first()
@@ -23,10 +24,12 @@ def criar_veterinario(vet: VeterinarioCreate, db: Session = Depends(get_db)):
     db.refresh(novo_vet) 
     return novo_vet
 
+
 @router.get("/", response_model=list[VeterinarioResponse])
 def listar_veterinarios(db: Session = Depends(get_db)):
     veterinarios = db.query(Veterinario).all()
     return veterinarios
+
 
 @router.put("/{vet_id}", response_model=VeterinarioResponse)
 def atualizar_veterinario(vet_id: int, vet_atualizado: VeterinarioCreate, db: Session = Depends(get_db)):
@@ -40,3 +43,14 @@ def atualizar_veterinario(vet_id: int, vet_atualizado: VeterinarioCreate, db: Se
     db.commit()
     db.refresh(db_vet)
     return db_vet
+
+
+@router.delete("/{vet_id}")
+def deletar_veterinario(vet_id: int, db: Session = Depends(get_db)):
+    db_vet = db.query(Veterinario).filter(Veterinario.id == vet_id).first()
+    if not db_vet:
+        raise HTTPException(status_code=404, detail="Veterinário não encontrado.")
+
+    db.delete(db_vet)
+    db.commit()
+    return {"mensagem": "Veterinário deletado."}
