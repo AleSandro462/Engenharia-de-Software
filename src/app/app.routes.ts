@@ -10,6 +10,7 @@ import { Prontuarios } from './sessoes/prontuarios/prontuarios';
 import { Relatorios } from './sessoes/relatorios/relatorios';
 import { Tutores } from './sessoes/tutores/tutores';
 import { Usuarios } from './sessoes/usuarios/usuarios';
+import { Veterinarios } from './sessoes/veterinarios/veterinarios';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -30,6 +31,7 @@ export const routes: Routes = [
       { path: 'relatorios', component: Relatorios },
       { path: 'tutores', component: Tutores },
       { path: 'usuarios', component: Usuarios },
+      { path: 'veterinarios', component: Veterinarios },
     ],
   },
 
