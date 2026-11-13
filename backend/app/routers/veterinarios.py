@@ -4,7 +4,7 @@ from ..database import get_db # Puxa a função que conecta no banco
 from ..models import Veterinario # Puxa a sua tabela
 from ..schemas.veterinario import VeterinarioCreate, VeterinarioResponse # Puxa as suas validações
 
-# Cria o "grupo" de URLs para veterinários
+
 router = APIRouter(
     prefix="/veterinarios",
     tags=["Veterinários"]
@@ -27,3 +27,16 @@ def criar_veterinario(vet: VeterinarioCreate, db: Session = Depends(get_db)):
 def listar_veterinarios(db: Session = Depends(get_db)):
     veterinarios = db.query(Veterinario).all()
     return veterinarios
+
+@router.put("/{vet_id}", response_model=VeterinarioResponse)
+def atualizar_veterinario(vet_id: int, vet_atualizado: VeterinarioCreate, db: Session = Depends(get_db)):
+    db_vet = db.query(Veterinario).filter(Veterinario.id == vet_id).first()
+    if not db_vet:
+        raise HTTPException(status_code=404, detail="Veterinário não encontrado.")
+
+    for key, value in vet_atualizado.model_dump().items():
+        setattr(db_vet, key, value)
+
+    db.commit()
+    db.refresh(db_vet)
+    return db_vet
