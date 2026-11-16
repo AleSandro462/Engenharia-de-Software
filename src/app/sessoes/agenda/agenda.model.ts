@@ -1,3 +1,5 @@
+import { Veterinario } from '../veterinarios/veterinarios.model';
+
 export type StatusConsulta =
   | 'aguardando'
   | 'confirmada'
@@ -34,12 +36,8 @@ export interface NovaConsulta {
   observacoes: string | null;
 }
 
-export interface Veterinario {
-  id: number;
-  nome: string;
-  crmv: string;
-  especialidade: string;
-}
+/** Veterinário como vem de GET /veterinarios/ (REQ 06); lá o id é opcional só porque o mesmo tipo serve para o cadastro. */
+export type VeterinarioAgenda = Veterinario & { id: number };
 
 export const STATUS_INFO: Record<StatusConsulta, { rotulo: string }> = {
   aguardando: { rotulo: 'Aguardando' },

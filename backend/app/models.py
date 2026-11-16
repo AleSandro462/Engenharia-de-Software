@@ -41,15 +41,24 @@ class Usuario(Base):
     perfil = Column(String(20), nullable=False, default="recepcionista")
 
 
+class Veterinario(Base):
+    __tablename__ = "veterinarios"
+     
+    id = Column(Integer, primary_key=True, index=True) 
+    nome = Column(String, index=True, nullable=False) # nullable=False significa NOT NULL (é obrigatório)
+    crmv = Column(String, unique=True, index=True, nullable=False) # unique=True impede de cadastrar dois CRMs iguais
+    telefone = Column(String, nullable=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    especialidade = Column(String, nullable=True)
+
+
 class Consulta(Base):
     __tablename__ = "consultas"
 
     id = Column(Integer, primary_key=True, index=True)
     animal_id = Column(Integer, ForeignKey("animais.id"), nullable=False)
     tutor_id = Column(Integer, ForeignKey("tutores.id"), nullable=False)
-    # Sem ForeignKey por enquanto: a tabela de veterinarios (REQ 06) ainda esta em PR.
-    # TODO: apos o merge do REQ 06, trocar por ForeignKey("veterinarios.id").
-    veterinario_id = Column(Integer, nullable=False, index=True)
+    veterinario_id = Column(Integer, ForeignKey("veterinarios.id"), nullable=False, index=True)
     data = Column(Date, nullable=False, index=True)
     hora_inicio = Column(Time, nullable=False)
     duracao_min = Column(Integer, nullable=False, default=30)
@@ -60,6 +69,7 @@ class Consulta(Base):
 
     animal = relationship("Animal")
     tutor = relationship("Tutor")
+    veterinario = relationship("Veterinario")
 
     @property
     def animal_nome(self) -> str:

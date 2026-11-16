@@ -59,6 +59,9 @@ def agendar_consulta(dados: ConsultaCreate, db: Session = Depends(get_db)):
     if animal.tutor_id != tutor.id:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "O animal não pertence a este tutor")
 
+    if not db.query(models.Veterinario).filter_by(id=dados.veterinario_id).first():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Veterinário não encontrado")
+
     novo_ini, novo_fim = _intervalo(dados.data, dados.hora_inicio, dados.duracao_min)
     if novo_ini < datetime.now():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Não é possível agendar no passado")

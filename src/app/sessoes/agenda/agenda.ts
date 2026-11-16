@@ -10,7 +10,7 @@ import {
   STATUS_INFO,
   StatusConsulta,
   TIPOS_CONSULTA,
-  Veterinario,
+  VeterinarioAgenda,
   deIso,
   hhmm,
   minutos,
@@ -111,7 +111,7 @@ export class Agenda implements OnInit {
   statusFiltro = signal<StatusConsulta | ''>('');
   consultas = signal<Consulta[]>([]);
   tutores = signal<Tutor[]>([]);
-  veterinarios = signal<Veterinario[]>([]);
+  veterinarios = signal<VeterinarioAgenda[]>([]);
   selecionadaId = signal<number | null>(null);
   erro = signal('');
 
@@ -265,7 +265,7 @@ export class Agenda implements OnInit {
           ? this.veterinarios().filter((v) => v.id === f.veterinario_id)
           : this.veterinarios();
       return vets.map((v) => ({
-        titulo: f.veterinario_id !== null ? '' : `${v.nome} — ${v.especialidade}`,
+        titulo: f.veterinario_id !== null ? '' : v.especialidade ? `${v.nome} — ${v.especialidade}` : v.nome,
         vetId: v.id,
         data: f.data,
         slots: this.slotsPara(v.id, f.data),
@@ -438,7 +438,7 @@ export class Agenda implements OnInit {
     return this.veterinarios().find((v) => v.id === id)?.nome ?? `Veterinário #${id}`;
   }
 
-  veterinario(id: number): Veterinario | undefined {
+  veterinario(id: number): VeterinarioAgenda | undefined {
     return this.veterinarios().find((v) => v.id === id);
   }
 

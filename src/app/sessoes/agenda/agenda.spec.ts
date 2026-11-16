@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { AgendaService } from '../../services/agenda';
 import { Agenda } from './agenda';
+import { FakeAgendaService } from './agenda.testing';
 import { deIso, paraIso, somarDias } from './agenda.model';
 
 describe('Agenda', () => {
@@ -11,7 +13,11 @@ describe('Agenda', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Agenda],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: AgendaService, useClass: FakeAgendaService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Agenda);

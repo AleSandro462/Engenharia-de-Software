@@ -24,7 +24,7 @@
       <select class="filtro" aria-label="Filtrar por veterinário" [ngModel]="vetFiltro()" (ngModelChange)="vetFiltro.set($event)">
         <option [ngValue]="null">Todos os veterinários</option>
         @for (v of veterinarios(); track v.id) {
-          <option [ngValue]="v.id">{{ v.nome }} ({{ v.especialidade }})</option>
+          <option [ngValue]="v.id">{{ v.nome }}{{ v.especialidade ? ' (' + v.especialidade + ')' : '' }}</option>
         }
       </select>
       <select class="filtro" aria-label="Filtrar por status" [ngModel]="statusFiltro()" (ngModelChange)="statusFiltro.set($event)">
@@ -172,7 +172,7 @@
             <div>
               <strong>{{ nomeVeterinario(c.veterinario_id) }}</strong>
               @if (veterinario(c.veterinario_id); as v) {
-                <span>{{ v.crmv }} • {{ v.especialidade }}</span>
+                <span>{{ v.crmv }}{{ v.especialidade ? ' • ' + v.especialidade : '' }}</span>
               }
             </div>
           </div>
@@ -273,7 +273,7 @@
           <select id="vet" name="vet" [ngModel]="form().veterinario_id" (ngModelChange)="setCampo('veterinario_id', $event)">
             <option [ngValue]="null">Selecione...</option>
             @for (v of veterinarios(); track v.id) {
-              <option [ngValue]="v.id">{{ v.nome }} — {{ v.especialidade }}</option>
+              <option [ngValue]="v.id">{{ v.nome }}{{ v.especialidade ? ' — ' + v.especialidade : '' }}</option>
             }
           </select>
         </div>
