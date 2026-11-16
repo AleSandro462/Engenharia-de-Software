@@ -1,1 +1,396 @@
-<p>agenda works!</p>
+<div class="agenda-page" [style.--altura-hora.px]="pxHora">
+  <header class="page-header">
+    <div>
+      <h1>Agenda <span class="badge-semana">Semana {{ numeroSemana() }}</span></h1>
+      <p class="subtitulo">Gerencie consultas e a disponibilidade dos veterinários.</p>
+    </div>
+  </header>
+
+  <div class="barra-semana">
+    <div class="linha-nav">
+      <div class="navegacao">
+        <button type="button" class="btn btn-icone" aria-label="Período anterior" (click)="mudar(-1)">‹</button>
+        <button type="button" class="btn" (click)="irParaHoje()">Hoje</button>
+        <button type="button" class="btn btn-icone" aria-label="Próximo período" (click)="mudar(1)">›</button>
+      </div>
+      <strong class="titulo-semana">{{ titulo() }}</strong>
+    </div>
+    <div class="filtros">
+      <div class="abas" role="tablist" aria-label="Modo de visualização">
+        @for (v of visoes; track v.valor) {
+          <button type="button" role="tab" class="aba" [class.ativa]="visao() === v.valor" [attr.aria-selected]="visao() === v.valor" (click)="setVisao(v.valor)">{{ v.rotulo }}</button>
+        }
+      </div>
+      <select class="filtro" aria-label="Filtrar por veterinário" [ngModel]="vetFiltro()" (ngModelChange)="vetFiltro.set($event)">
+        <option [ngValue]="null">Todos os veterinários</option>
+        @for (v of veterinarios(); track v.id) {
+          <option [ngValue]="v.id">{{ v.nome }} ({{ v.especialidade }})</option>
+        }
+      </select>
+      <select class="filtro" aria-label="Filtrar por status" [ngModel]="statusFiltro()" (ngModelChange)="statusFiltro.set($event)">
+        <option value="">Todos os status</option>
+        @for (s of statusLista; track s) {
+          <option [value]="s">{{ statusInfo[s].rotulo }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (erro()) {
+    <p class="alerta alerta-erro">{{ erro() }}</p>
+  }
+
+  <div class="conteudo">
+    <section class="calendario" aria-label="Calendário semanal">
+      @if (visao() === 'mes') {
+        <div class="mes">
+          <div class="mes-cab">
+            @for (n of nomesDia; track n) {
+              <span>{{ n }}</span>
+            }
+          </div>
+          @for (sem of mesGrade(); track sem.chave) {
+            <div class="mes-semana">
+              @for (d of sem.dias; track d.iso) {
+                <div class="mes-dia" [class.fora]="d.fora" [class.hoje]="d.ehHoje" role="button" tabindex="0" [attr.aria-label]="'Abrir dia ' + d.numero" (click)="abrirDia(d.iso)" (keydown.enter)="abrirDia(d.iso)">
+                  <span class="mes-num">{{ d.numero }}</span>
+                  @for (c of d.itens.slice(0, 3); track c.id) {
+                    <button type="button" class="mes-chip status-{{ c.status }}" (click)="selecionar(c); $event.stopPropagation()">{{ hhmm(c.hora_inicio) }} {{ c.animal_nome }}</button>
+                  }
+                  @if (d.itens.length > 3) {
+                    <small class="mes-mais">+{{ d.itens.length - 3 }} mais</small>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="grade" [style.--cols]="dias().length">
+      <div class="cabecalho-dias">
+        <div class="coluna-hora">Hora</div>
+        @for (c of colunas(); track c.dia.iso) {
+          <div class="cabecalho-dia" [class.hoje]="c.dia.ehHoje">
+            <span>{{ c.dia.nome }}</span>
+            <strong>{{ c.dia.numero }}</strong>
+          </div>
+        }
+      </div>
+
+      <div class="corpo">
+        <div class="coluna-hora">
+          @for (h of horas; track h) {
+            <div class="rotulo-hora">{{ h < 10 ? '0' + h : h }}:00</div>
+          }
+        </div>
+
+        @for (col of colunas(); track col.dia.iso) {
+          <div class="coluna-dia" [class.hoje]="col.dia.ehHoje" [style.height.px]="alturaGrade" title="Clique em um horário vazio para agendar" (click)="agendarNoHorario($event, col.dia.iso)">
+            @for (card of col.cards; track card.consulta.id) {
+              <button
+                type="button"
+                class="card-consulta status-{{ card.consulta.status }}"
+                [class.ativo]="card.consulta.id === selecionadaId()"
+                [style.top.px]="card.top"
+                [style.height.px]="card.height"
+                [style.left.%]="card.left"
+                [style.width.%]="card.width"
+                (click)="selecionar(card.consulta)"
+              >
+                <strong class="card-animal">{{ card.consulta.animal_nome }}</strong>
+                <span class="card-hora">{{ hhmm(card.consulta.hora_inicio) }} · {{ statusInfo[card.consulta.status].rotulo }}</span>
+                @if (card.height >= 64) {
+                  <span class="card-vet">{{ nomeVeterinario(card.consulta.veterinario_id) }}</span>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+        </div>
+      }
+
+      <footer class="legenda">
+        @for (s of statusLista; track s) {
+          <span class="legenda-item"><i class="ponto status-{{ s }}"></i>{{ statusInfo[s].rotulo }} ({{ contagem()[s] }})</span>
+        }
+        <small>Clique em um agendamento para ver os detalhes ou em um horário vazio para agendar.</small>
+      </footer>
+    </section>
+
+    <aside class="detalhes" aria-label="Detalhes do agendamento">
+      @if (selecionada(); as c) {
+        <div class="detalhes-topo">
+          <h2>Detalhes do agendamento</h2>
+          <span class="selo status-{{ c.status }}">{{ statusInfo[c.status].rotulo }}</span>
+          <button type="button" class="fechar" aria-label="Fechar" (click)="selecionadaId.set(null)">×</button>
+        </div>
+
+        <h3>Paciente</h3>
+        <div class="card-paciente">
+          <div class="paciente-linha">
+            <div class="avatar-pet" aria-hidden="true">{{ emojiEspecie(animal()?.especie) }}</div>
+            <div class="paciente-info">
+              <div class="paciente-nome">
+                <strong>{{ c.animal_nome }}</strong>
+                <span class="id-pet">#{{ c.animal_id }}</span>
+              </div>
+              <span>
+                {{ animal()?.especie }}@if (animal()?.raca) { • {{ animal()?.raca }} }
+              </span>
+              @if (idadeAnimal()) {
+                <small>{{ idadeAnimal() }}</small>
+              }
+            </div>
+          </div>
+          <div class="tutor-linha">
+            <span class="tutor-ico" aria-hidden="true">👤</span>
+            <div class="tutor-info">
+              <strong>{{ c.tutor_nome }}</strong>
+              @if (tutor()?.email) {
+                <small>{{ tutor()?.email }}</small>
+              } @else if (tutor()?.telefone) {
+                <small>{{ tutor()?.telefone }}</small>
+              }
+            </div>
+            <div class="tutor-acoes">
+              @if (tutor()?.email) {
+                <a class="acao-contato" [href]="'mailto:' + tutor()?.email" aria-label="Enviar e-mail ao tutor" title="Enviar e-mail">💬</a>
+              }
+              @if (tutor()?.telefone) {
+                <a class="acao-contato" [href]="'tel:' + tutor()?.telefone" aria-label="Ligar para o tutor" title="Ligar">📞</a>
+              }
+            </div>
+          </div>
+        </div>
+
+        <h3>Agendamento</h3>
+        <div class="card-agendamento">
+          <div class="vet-linha">
+            <span class="vet-ico" aria-hidden="true">🩺</span>
+            <div>
+              <strong>{{ nomeVeterinario(c.veterinario_id) }}</strong>
+              @if (veterinario(c.veterinario_id); as v) {
+                <span>{{ v.crmv }} • {{ v.especialidade }}</span>
+              }
+            </div>
+          </div>
+          <div class="duas-colunas">
+            <div class="mini">
+              <small>DATA &amp; HORÁRIO</small>
+              <strong>{{ quando(c) }}</strong>
+              <span>Duração: {{ c.duracao_min }} min</span>
+            </div>
+            <div class="mini">
+              <small>UNIDADE</small>
+              <strong>{{ unidade }}</strong>
+            </div>
+          </div>
+          <div class="tipo-linha">
+            <span>Tipo de atendimento:</span>
+            <strong>{{ c.tipo }}</strong>
+          </div>
+        </div>
+
+        @if (c.observacoes) {
+          <h3>Observações</h3>
+          <div class="bloco">{{ c.observacoes }}</div>
+        }
+
+        @if (c.status === 'cancelada') {
+          <h3>Motivo do cancelamento</h3>
+          <div class="bloco">{{ c.motivo_cancelamento || 'Não informado.' }}</div>
+        }
+
+        @if (podeCancelar()) {
+          <button type="button" class="btn btn-perigo btn-bloco" (click)="abrirCancelar()">Cancelar consulta</button>
+        }
+      } @else {
+        <p class="vazio">Selecione uma consulta na agenda para ver os detalhes.</p>
+      }
+    </aside>
+  </div>
+</div>
+
+<!-- REQ 07: modal de novo agendamento -->
+@if (modalNovo()) {
+  <div class="overlay" (click)="fecharNovo()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-novo" (click)="$event.stopPropagation()">
+      <div class="modal-topo">
+        <span class="modal-icone" aria-hidden="true">📅</span>
+        <div>
+          <h2 id="titulo-novo">Novo agendamento</h2>
+          <p>Escolha o tutor, o animal e um horário disponível.</p>
+        </div>
+        <button type="button" class="fechar" aria-label="Fechar" (click)="fecharNovo()">×</button>
+      </div>
+
+      <form (ngSubmit)="salvarAgendamento()" novalidate>
+        <div class="campo combo">
+          <label for="tutor">Tutor *</label>
+          <div class="combo-caixa">
+            <input
+              id="tutor" name="tutor" type="text" autocomplete="off"
+              role="combobox" aria-autocomplete="list" aria-controls="lista-tutores" [attr.aria-expanded]="tutorAberto()"
+              placeholder="Buscar por nome, CPF ou telefone..."
+              [ngModel]="tutorBusca()" (ngModelChange)="digitarTutor($event)"
+              (focus)="tutorAberto.set(true)" (blur)="fecharListaTutor()" (keydown)="teclaTutor($event)"
+            />
+            @if (tutorBusca()) {
+              <button type="button" class="combo-limpar" aria-label="Limpar tutor" (mousedown)="$event.preventDefault()" (click)="limparTutor()">×</button>
+            }
+          </div>
+          @if (tutorAberto()) {
+            <ul id="lista-tutores" class="combo-lista" role="listbox">
+              @for (t of tutoresFiltrados().itens; track t.id; let i = $index) {
+                <li role="option" [class.ativo]="i === tutorIdx()" [attr.aria-selected]="t.id === form().tutor_id" (mousedown)="escolherTutorLista(t)" (mouseenter)="tutorIdx.set(i)">
+                  <strong>{{ t.nome }}</strong>
+                  <small>{{ t.cpf }} · {{ t.animais.length }} {{ t.animais.length === 1 ? 'animal' : 'animais' }}</small>
+                </li>
+              } @empty {
+                <li class="combo-vazio">Nenhum tutor encontrado.</li>
+              }
+              @if (tutoresFiltrados().restantes) {
+                <li class="combo-vazio">+{{ tutoresFiltrados().restantes }} resultado(s). Continue digitando para refinar.</li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="animal">Animal *</label>
+          <select id="animal" name="animal" [ngModel]="form().animal_id" (ngModelChange)="setCampo('animal_id', $event)" [disabled]="!form().tutor_id">
+            <option [ngValue]="null">{{ form().tutor_id ? 'Selecione...' : 'Escolha o tutor primeiro' }}</option>
+            @for (a of animaisDoTutor(); track a.id) {
+              <option [ngValue]="a.id">{{ a.nome }} ({{ a.especie }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="vet">Veterinário</label>
+          <select id="vet" name="vet" [ngModel]="form().veterinario_id" (ngModelChange)="setCampo('veterinario_id', $event)">
+            <option [ngValue]="null">Selecione...</option>
+            @for (v of veterinarios(); track v.id) {
+              <option [ngValue]="v.id">{{ v.nome }} — {{ v.especialidade }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="linha">
+          <div class="campo">
+            <label for="data">Data</label>
+            <input id="data" name="data" type="date" [min]="hoje" [ngModel]="form().data" (ngModelChange)="setCampo('data', $event)" />
+          </div>
+          <div class="campo">
+            <label for="tipo">Tipo</label>
+            <select id="tipo" name="tipo" [ngModel]="form().tipo" (ngModelChange)="setCampo('tipo', $event)">
+              @for (t of tipos; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo">
+            <label for="duracao">Duração</label>
+            <select id="duracao" name="duracao" [ngModel]="form().duracao_min" (ngModelChange)="setCampo('duracao_min', $event)">
+              @for (d of duracoes; track d) {
+                <option [ngValue]="d">{{ d }} min</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <fieldset class="campo horarios">
+          <legend>
+            Horário *
+            @if (grupos().length) {
+              <small>{{ totalLivres() }} horário(s) disponível(is)</small>
+            }
+          </legend>
+          @if (!grupos().length) {
+            <p class="dica">Escolha uma data ou um veterinário para ver os horários disponíveis.</p>
+          } @else {
+            <div class="grupos-horarios">
+              @for (g of grupos(); track g.vetId + '|' + g.data) {
+                <div class="grupo">
+                  @if (g.titulo) {
+                    <div class="grupo-titulo">
+                      <strong>{{ g.titulo }}</strong>
+                      <span [class.sem-vaga]="!livresDoGrupo(g)">
+                        {{ livresDoGrupo(g) ? livresDoGrupo(g) + ' livre(s)' : 'Sem horários' }}
+                      </span>
+                    </div>
+                  }
+                  @if (livresDoGrupo(g) || !g.titulo) {
+                    <div class="grade-horarios">
+                      @for (s of g.slots; track s.hora) {
+                        <button
+                          type="button"
+                          class="slot"
+                          [class.selecionado]="horarioSelecionado(g, s.hora)"
+                          [class.ocupado]="!s.livre"
+                          [disabled]="!s.livre"
+                          [title]="s.motivo"
+                          [attr.aria-pressed]="horarioSelecionado(g, s.hora)"
+                          (click)="selecionarHorario(g.vetId, g.data, s.hora)"
+                        >{{ s.hora }}</button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </fieldset>
+
+        <div class="campo">
+          <label for="obs">Observações</label>
+          <textarea id="obs" name="obs" rows="3" [ngModel]="form().observacoes" (ngModelChange)="setCampo('observacoes', $event)"></textarea>
+        </div>
+
+        @if (resumo(); as r) {
+          <div class="resumo">
+            <strong>{{ r.animal }} · {{ r.tipo }}</strong>
+            <span>{{ r.veterinario }}</span>
+            <span>{{ r.quando }}</span>
+          </div>
+        }
+
+        @if (erroForm()) {
+          <p class="alerta alerta-erro" role="alert">{{ erroForm() }}</p>
+        }
+
+        <div class="acoes">
+          <button type="button" class="btn" (click)="fecharNovo()" [disabled]="salvando()">Voltar</button>
+          <button type="submit" class="btn btn-primario btn-grande" [disabled]="salvando()">
+            {{ salvando() ? 'Agendando...' : 'Confirmar agendamento' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- REQ 08: confirmação de cancelamento -->
+@if (modalCancelar() && selecionada(); as c) {
+  <div class="overlay" (click)="modalCancelar.set(false)">
+    <div class="modal modal-pequeno" role="alertdialog" aria-modal="true" aria-labelledby="titulo-cancelar" (click)="$event.stopPropagation()">
+      <h2 id="titulo-cancelar">Cancelar consulta?</h2>
+      <p>
+        {{ c.animal_nome }} ({{ c.tutor_nome }}) — {{ dataExtenso(c.data) }} às {{ hhmm(c.hora_inicio) }}.
+      </p>
+      <div class="campo">
+        <label for="motivo">Motivo (opcional)</label>
+        <textarea id="motivo" name="motivo" rows="3" [ngModel]="motivoCancelamento()" (ngModelChange)="motivoCancelamento.set($event)"></textarea>
+      </div>
+      @if (erroCancelar()) {
+        <p class="alerta alerta-erro" role="alert">{{ erroCancelar() }}</p>
+      }
+      <div class="acoes">
+        <button type="button" class="btn" (click)="modalCancelar.set(false)">Manter consulta</button>
+        <button type="button" class="btn btn-perigo-cheio" (click)="confirmarCancelamento()">Cancelar consulta</button>
+      </div>
+    </div>
+  </div>
+}
