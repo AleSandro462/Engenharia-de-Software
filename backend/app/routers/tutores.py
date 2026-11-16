@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.schemas.tutor import (
-    TutorCreate, TutorUpdate, TutorOut, AnimalCreate, AnimalOut,
+    TutorCreate, TutorUpdate, TutorOut, AnimalCreate, AnimalUpdate, AnimalOut,
 )
 
 router = APIRouter(prefix="/tutores", tags=["Tutores"])
@@ -42,6 +42,8 @@ def criar_tutor(dados: TutorCreate, db: Session = Depends(get_db)):
 @router.put("/{tutor_id}", response_model=TutorOut)
 def atualizar_tutor(tutor_id: int, dados: TutorUpdate, db: Session = Depends(get_db)):
     tutor = buscar_tutor(db, tutor_id)
+    if dados.cpf and db.query(models.Tutor).filter(models.Tutor.cpf == dados.cpf, models.Tutor.id != tutor_id).first():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "CPF já cadastrado")
     for campo, valor in dados.model_dump(exclude_unset=True).items():
         setattr(tutor, campo, valor)
     db.commit()
@@ -66,10 +68,25 @@ def adicionar_animal(tutor_id: int, dados: AnimalCreate, db: Session = Depends(g
     return animal
 
 
-@router.delete("/{tutor_id}/animais/{animal_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remover_animal(tutor_id: int, animal_id: int, db: Session = Depends(get_db)):
+def buscar_animal(db: Session, tutor_id: int, animal_id: int) -> models.Animal:
     animal = db.query(models.Animal).filter_by(id=animal_id, tutor_id=tutor_id).first()
     if not animal:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Animal não encontrado")
+    return animal
+
+
+@router.put("/{tutor_id}/animais/{animal_id}", response_model=AnimalOut)
+def atualizar_animal(tutor_id: int, animal_id: int, dados: AnimalUpdate, db: Session = Depends(get_db)):
+    animal = buscar_animal(db, tutor_id, animal_id)
+    for campo, valor in dados.model_dump(exclude_unset=True).items():
+        setattr(animal, campo, valor)
+    db.commit()
+    db.refresh(animal)
+    return animal
+
+
+@router.delete("/{tutor_id}/animais/{animal_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remover_animal(tutor_id: int, animal_id: int, db: Session = Depends(get_db)):
+    animal = buscar_animal(db, tutor_id, animal_id)
     db.delete(animal)
     db.commit()
