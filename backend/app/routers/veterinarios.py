@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from ..database import get_db # Puxa a função que conecta no banco
-from ..models import Veterinario # Puxa a sua tabela
-from ..schemas.veterinario import VeterinarioCreate, VeterinarioResponse # Puxa as suas validações
-
+from ..database import get_db
+from ..models import Usuario, Veterinario
+from ..schemas.veterinario import VeterinarioCreate, VeterinarioResponse
 
 router = APIRouter(
     prefix="/veterinarios",
@@ -13,12 +13,16 @@ router = APIRouter(
 
 @router.post("/", response_model=VeterinarioResponse)
 def criar_veterinario(vet: VeterinarioCreate, db: Session = Depends(get_db)):
+    email = vet.email.strip().lower()
     if db.query(Veterinario).filter(Veterinario.crmv == vet.crmv).first():
         raise HTTPException(status_code=400, detail="CRMV já cadastrado.")
-    if db.query(Veterinario).filter(Veterinario.email == vet.email).first():
+    if db.query(Veterinario).filter(func.lower(Veterinario.email) == email).first():
         raise HTTPException(status_code=400, detail="E-mail já cadastrado.")
 
-    novo_vet = Veterinario(**vet.model_dump())
+    dados = vet.model_dump()
+    dados["email"] = email
+    novo_vet = Veterinario(**dados)
+
     db.add(novo_vet)
     db.commit()
     db.refresh(novo_vet)
@@ -27,8 +31,7 @@ def criar_veterinario(vet: VeterinarioCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[VeterinarioResponse])
 def listar_veterinarios(db: Session = Depends(get_db)):
-    veterinarios = db.query(Veterinario).all()
-    return veterinarios
+    return db.query(Veterinario).all()
 
 
 @router.put("/{vet_id}", response_model=VeterinarioResponse)
@@ -37,7 +40,10 @@ def atualizar_veterinario(vet_id: int, vet_atualizado: VeterinarioCreate, db: Se
     if not db_vet:
         raise HTTPException(status_code=404, detail="Veterinário não encontrado.")
 
-    for key, value in vet_atualizado.model_dump().items():
+    dados = vet_atualizado.model_dump()
+    dados["email"] = dados["email"].strip().lower()
+
+    for key, value in dados.items():
         setattr(db_vet, key, value)
 
     db.commit()
@@ -51,6 +57,14 @@ def deletar_veterinario(vet_id: int, db: Session = Depends(get_db)):
     if not db_vet:
         raise HTTPException(status_code=404, detail="Veterinário não encontrado.")
 
+    db_usuario = (
+        db.query(Usuario)
+        .filter(func.lower(Usuario.email) == db_vet.email.strip().lower())
+        .first()
+    )
+    if db_usuario:
+        db.delete(db_usuario)
+
     db.delete(db_vet)
     db.commit()
-    return {"mensagem": "Veterinário deletado."}
+    return {"mensagem": "Veterinário e acesso removidos."}
