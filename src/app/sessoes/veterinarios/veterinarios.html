@@ -9,23 +9,54 @@
 
 <form (ngSubmit)="salvar()" #vetForm="ngForm">
   <div>
-    <label>Nome:</label>
+    <label>Nome *:</label>
     <input type="text" name="nome" [(ngModel)]="form.nome" required />
   </div>
 
   <div>
-    <label>CRMV:</label>
-    <input type="text" name="crmv" [(ngModel)]="form.crmv" required />
+    <label>CRMV *:</label>
+    <input
+      type="text"
+      name="crmv"
+      [(ngModel)]="form.crmv"
+      #crmv="ngModel"
+      required
+      pattern="^([A-Za-z]{2}-)?\d{4,6}$"
+    />
+    @if (crmv.invalid && (crmv.dirty || crmv.touched)) {
+      <small style="color: red;">CRMV inválido</small>
+    }
   </div>
 
   <div>
-    <label>Telefone:</label>
-    <input type="text" name="telefone" [(ngModel)]="form.telefone" required />
+    <label>Telefone *:</label>
+    <input
+      type="tel"
+      name="telefone"
+      [(ngModel)]="form.telefone"
+      #telefone="ngModel"
+      required
+      pattern="^(\(?\d{2}\)?\s?)?\d{4,5}-?\d{4}$"
+      
+    />
+    @if (telefone.invalid && (telefone.dirty || telefone.touched)) {
+      <small style="color: red;">Telefone inválido: informe DDD + número.</small>
+    }
   </div>
 
   <div>
-    <label>E-mail:</label>
-    <input type="email" name="email" [(ngModel)]="form.email" required />
+    <label>E-mail *:</label>
+      <input
+      type="email"
+      name="email"
+      [(ngModel)]="form.email"
+      #email="ngModel"
+      required
+      email
+    />
+    @if (email.invalid && (email.dirty || email.touched)) {
+      <small style="color: red;">Informe um e-mail válido.</small>
+    }
   </div>
 
   <div>
