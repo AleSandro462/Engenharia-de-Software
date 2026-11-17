@@ -45,8 +45,8 @@ class Veterinario(Base):
     __tablename__ = "veterinarios"
      
     id = Column(Integer, primary_key=True, index=True) 
-    nome = Column(String, index=True, nullable=False) # nullable=False significa NOT NULL (é obrigatório)
-    crmv = Column(String, unique=True, index=True, nullable=False) # unique=True impede de cadastrar dois CRMs iguais
+    nome = Column(String, index=True, nullable=False) 
+    crmv = Column(String, unique=True, index=True, nullable=False) 
     telefone = Column(String, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
     especialidade = Column(String, nullable=True)

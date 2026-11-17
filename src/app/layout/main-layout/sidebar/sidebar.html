@@ -25,6 +25,14 @@
     <span>Tutores e Animais</span>
   </a>
 
+  <!-- Veterinários (oculto para perfil veterinário) -->
+    @if (authService.podeGerenciarVeterinarios()) {
+      <a routerLink="/veterinarios" routerLinkActive="active" class="menu-item">
+        <span class="icon">🩺</span>
+        <span>Veterinários</span>
+      </a>
+    }
+
   <!-- Atendimentos -->
   <a routerLink="/atendimentos" routerLinkActive="active" class="menu-item">
     <span class="icon"><img src="icons8-estetoscópio-20.png" alt=""></span>

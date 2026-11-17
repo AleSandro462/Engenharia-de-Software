@@ -40,6 +40,15 @@ export class Veterinarios implements OnInit {
     });
   }
 
+  private extrairErro(err: any, padrao: string): string {
+    const detail = err?.error?.detail;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail) && detail.length > 0) {
+      return detail[0].msg?.replace('Value error, ', '') || padrao;
+    }
+    return padrao;
+  }
+
   salvar() {
     this.erro.set('');
     this.sucesso.set('');
@@ -57,7 +66,7 @@ export class Veterinarios implements OnInit {
           this.cancelarEdicao();
           this.carregarVeterinarios();
         },
-        error: (err) => this.erro.set(err?.error?.detail || 'Erro ao atualizar veterinário.'),
+        error: (err) => this.erro.set(this.extrairErro(err, 'Erro ao atualizar veterinário.')),
       });
     } else {
       this.service.cadastrar(payload).subscribe({
@@ -66,7 +75,7 @@ export class Veterinarios implements OnInit {
           this.form = this.novoFormulario();
           this.carregarVeterinarios();
         },
-        error: (err) => this.erro.set(err?.error?.detail || 'Erro ao cadastrar veterinário.'),
+        error: (err) => this.erro.set(this.extrairErro(err, 'Erro ao cadastrar veterinário.')),
       });
     }
   }
