@@ -15,6 +15,14 @@ class AnimalCreate(AnimalBase):
     pass
 
 
+class AnimalUpdate(BaseModel):
+    nome: str | None = None
+    especie: str | None = None
+    raca: str | None = None
+    sexo: Literal["M", "F"] | None = None
+    data_nascimento: date | None = None
+
+
 class AnimalOut(AnimalBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
