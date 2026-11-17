@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Time, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -50,3 +50,31 @@ class Veterinario(Base):
     telefone = Column(String, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
     especialidade = Column(String, nullable=True)
+
+
+class Consulta(Base):
+    __tablename__ = "consultas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    animal_id = Column(Integer, ForeignKey("animais.id"), nullable=False)
+    tutor_id = Column(Integer, ForeignKey("tutores.id"), nullable=False)
+    veterinario_id = Column(Integer, ForeignKey("veterinarios.id"), nullable=False, index=True)
+    data = Column(Date, nullable=False, index=True)
+    hora_inicio = Column(Time, nullable=False)
+    duracao_min = Column(Integer, nullable=False, default=30)
+    tipo = Column(String(60), nullable=False, default="Consulta")
+    observacoes = Column(Text, nullable=True)
+    status = Column(String(20), nullable=False, default="aguardando")
+    motivo_cancelamento = Column(Text, nullable=True)
+
+    animal = relationship("Animal")
+    tutor = relationship("Tutor")
+    veterinario = relationship("Veterinario")
+
+    @property
+    def animal_nome(self) -> str:
+        return self.animal.nome
+
+    @property
+    def tutor_nome(self) -> str:
+        return self.tutor.nome

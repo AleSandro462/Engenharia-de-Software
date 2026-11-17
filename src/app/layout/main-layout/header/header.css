@@ -5,17 +5,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  margin-left: 240px; /* Alinha com a largura da sidebar */
+  /* a margem da sidebar já vem do .main-content */
 }
 
 .left-section, .right-section {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
 }
+.right-section { flex-shrink: 0; }
 
 /* Breadcrumb */
 .breadcrumb {
+  white-space: nowrap;
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -29,6 +32,8 @@
   border-radius: 8px;
   padding: 6px 12px;
   width: 280px;
+  min-width: 140px;
+  flex-shrink: 1;
 }
 
 .search-box input {
@@ -59,6 +64,7 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .status-dot {
@@ -77,6 +83,7 @@
   border-radius: 8px;
   font-weight: 600;
   font-size: 13px;
+  white-space: nowrap;
   cursor: pointer;
   transition: opacity 0.2s;
 }
