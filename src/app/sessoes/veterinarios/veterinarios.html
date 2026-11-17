@@ -7,73 +7,46 @@
   <p style="color: green;">{{ sucesso() }}</p>
 }
 
-<form (ngSubmit)="salvar()" #vetForm="ngForm">
-  <div>
-    <label>Nome *:</label>
-    <input type="text" name="nome" [(ngModel)]="form.nome" required />
+<form class="card" (ngSubmit)="salvar()" #vetForm="ngForm">
+  <div class="grid">
+    <div class="campo">
+      <label for="nome">Nome</label>
+      <input id="nome" type="text" name="nome" [(ngModel)]="form.nome" required />
+    </div>
+
+    <div class="campo">
+      <label for="crmv">CRMV</label>
+      <input id="crmv" type="text" name="crmv" [(ngModel)]="form.crmv" required />
+    </div>
+
+    <div class="campo">
+      <label for="telefone">Telefone</label>
+      <input id="telefone" type="text" name="telefone" [(ngModel)]="form.telefone" required />
+    </div>
+
+    <div class="campo">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" name="email" [(ngModel)]="form.email" required />
+    </div>
+
+    <div class="campo">
+      <label for="especialidade">Especialidade (opcional)</label>
+      <input id="especialidade" type="text" name="especialidade" [(ngModel)]="form.especialidade" />
+    </div>
   </div>
 
-  <div>
-    <label>CRMV *:</label>
-    <input
-      type="text"
-      name="crmv"
-      [(ngModel)]="form.crmv"
-      #crmv="ngModel"
-      required
-      pattern="^([A-Za-z]{2}-)?\d{4,6}$"
-    />
-    @if (crmv.invalid && (crmv.dirty || crmv.touched)) {
-      <small style="color: red;">CRMV inválido</small>
+  <div class="acoes">
+    <button type="submit" [disabled]="vetForm.invalid">
+      {{ editandoId() !== null ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+
+    @if (editandoId() !== null) {
+      <button type="button" (click)="cancelarEdicao()">Cancelar</button>
     }
   </div>
-
-  <div>
-    <label>Telefone *:</label>
-    <input
-      type="tel"
-      name="telefone"
-      [(ngModel)]="form.telefone"
-      #telefone="ngModel"
-      required
-      pattern="^(\(?\d{2}\)?\s?)?\d{4,5}-?\d{4}$"
-      
-    />
-    @if (telefone.invalid && (telefone.dirty || telefone.touched)) {
-      <small style="color: red;">Telefone inválido: informe DDD + número.</small>
-    }
-  </div>
-
-  <div>
-    <label>E-mail *:</label>
-      <input
-      type="email"
-      name="email"
-      [(ngModel)]="form.email"
-      #email="ngModel"
-      required
-      email
-    />
-    @if (email.invalid && (email.dirty || email.touched)) {
-      <small style="color: red;">Informe um e-mail válido.</small>
-    }
-  </div>
-
-  <div>
-    <label>Especialidade (opcional):</label>
-    <input type="text" name="especialidade" [(ngModel)]="form.especialidade" />
-  </div>
-
-  <button type="submit" [disabled]="vetForm.invalid">
-    {{ editandoId() !== null ? 'Atualizar' : 'Cadastrar' }}
-  </button>
-
-  @if (editandoId() !== null) {
-    <button type="button" (click)="cancelarEdicao()">Cancelar</button>
-  }
 </form>
 
-<hr />
+
 
 <table>
   <thead>
