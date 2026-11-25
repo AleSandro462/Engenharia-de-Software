@@ -1,11 +1,33 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import engine, Base
+from app.database import engine, Base, SessionLocal
 from app import models
 from app.routers import consultas, tutores, usuarios, veterinarios
+from app.routers.usuarios import gerar_hash
 
 Base.metadata.create_all(bind=engine)
+ADMIN_EMAIL = "admin@vetcare.com"
+ADMIN_SENHA = "321321"
+
+
+def criar_admin():
+    db = SessionLocal()
+    try:
+        existe = db.query(models.Usuario).filter_by(perfil="administrador").first()
+        if not existe:
+            db.add(models.Usuario(
+                nome="Administrador",
+                email=ADMIN_EMAIL,
+                senha_hash=gerar_hash(ADMIN_SENHA),
+                perfil="administrador",
+            ))
+            db.commit()
+    finally:
+        db.close()
+
+
+criar_admin()
 
 app = FastAPI(title="Vetcare - API")
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Time, Text, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -78,3 +78,11 @@ class Consulta(Base):
     @property
     def tutor_nome(self) -> str:
         return self.tutor.nome
+class RecuperacaoSenha(Base):
+    __tablename__ = "recuperacoes_senha"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    token_hash = Column(String(64), nullable=False, index=True)
+    expira_em = Column(DateTime, nullable=False)
+    usado = Column(Boolean, nullable=False, default=False)
