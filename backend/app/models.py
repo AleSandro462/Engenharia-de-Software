@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date, Time, Text, ForeignKey
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Date, Time, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -70,11 +71,23 @@ class Consulta(Base):
     animal = relationship("Animal")
     tutor = relationship("Tutor")
     veterinario = relationship("Veterinario")
-
     @property
     def animal_nome(self) -> str:
-        return self.animal.nome
-
+            return self.animal.nome
+    
     @property
     def tutor_nome(self) -> str:
-        return self.tutor.nome
+            return self.tutor.nome
+class Atendimento(Base):
+     __tablename__ = "atendimentos"
+
+     id = Column(Integer, primary_key=True, index=True)
+     consulta_id = Column(Integer, ForeignKey("consultas.id"), unique=True, nullable=False)
+     diagnostico = Column(Text, nullable=False)
+     observacoes = Column(Text, nullable=True)
+     procedimentos = Column(Text, nullable=True)
+     registrado_em = Column(DateTime, nullable=False, default=datetime.now)
+
+     consulta = relationship("Consulta")
+
+    
