@@ -1,4 +1,4 @@
-import { Component,inject } from '@angular/core';
+import { Component,inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -10,19 +10,22 @@ import { AuthService } from '../../services/auth';
   styleUrl: './cadastro.css',
   templateUrl: './cadastro.html',
 })
-export class Cadastro {private authService = inject(AuthService);
+export class Cadastro {
+  private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   nome = '';
   email = '';
   senha = '';
+  perfil = '';
   
   erroMensagem = '';
   sucessoMensagem = '';
   carregando = false;
 
   onSubmit() {
-    if (!this.nome || !this.email || !this.senha) {
+    if (!this.nome || !this.email || !this.senha || !this.perfil) {
       this.erroMensagem = 'Preencha todos os campos.';
       return;
     }
@@ -35,20 +38,23 @@ export class Cadastro {private authService = inject(AuthService);
       nome: this.nome,
       email: this.email,
       senha: this.senha,
-      perfil: 'usuario'
+      perfil: this.perfil
     };
 
     this.authService.cadastrar(novoUsuario).subscribe({
       next: () => {
         this.carregando = false;
         this.sucessoMensagem = 'Conta criada com sucesso! Redirecionando para o login...';
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.router.navigate(['/login']);
         }, 2000);
       },
       error: (err) => {
         this.carregando = false;
-        this.erroMensagem = err.error?.detail || 'Erro ao cadastrar usuário.';
+        const detalhe = err.error?.detail;
+        this.erroMensagem = typeof detalhe === 'string' ? detalhe : 'Erro ao cadastrar usuário. Confira os campos.';
+        this.cdr.detectChanges();
       }
     });
   }}

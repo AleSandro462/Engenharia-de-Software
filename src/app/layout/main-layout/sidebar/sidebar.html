@@ -7,56 +7,61 @@
 
   <!-- Menu de Navegação -->
   <nav class="menu">
-  <!-- Dashboard -->
-  <a routerLink="/dashboard" routerLinkActive="active" class="menu-item">
-    <span class="icon"><img src="icons8-macbook-de-desempenho-20.png" alt="dashboard"></span>
-    <span>Dashboard</span>
-  </a>
+    @if (authService.podeAcessar('dashboard')) {
+      <a routerLink="/dashboard" routerLinkActive="active" class="menu-item">
+        <span class="icon"><img src="icons8-macbook-de-desempenho-20.png" alt="dashboard"></span>
+        <span>Dashboard</span>
+      </a>
+    }
 
-  <!-- Agenda -->
-  <a routerLink="/agenda" routerLinkActive="active" class="menu-item">
-    <span clas="icon"><img src="icons8-calendário-de-folgas-20.png" alt="calendário"></span>
-    <span>Agenda</span>
-  </a>
+    @if (authService.podeAcessar('agenda')) {
+      <a routerLink="/agenda" routerLinkActive="active" class="menu-item">
+        <span class="icon"><img src="icons8-calendário-de-folgas-20.png" alt="calendário"></span>
+        <span>Agenda</span>
+      </a>
+    }
 
-  <!-- Tutores e Animais -->
-  <a routerLink="/tutores" routerLinkActive="active" class="menu-item">
-    <span clas="icon"><img src="icons8-bicho-de-estimação-20.png" alt="pegada"></span>
-    <span>Tutores e Animais</span>
-  </a>
+    @if (authService.podeAcessar('tutores')) {
+      <a routerLink="/tutores" routerLinkActive="active" class="menu-item">
+        <span class="icon"><img src="icons8-bicho-de-estimação-20.png" alt="pegada"></span>
+        <span>Tutores e Animais</span>
+      </a>
+    }
 
-  <!-- Veterinários (oculto para perfil veterinário) -->
-    @if (authService.podeGerenciarVeterinarios()) {
+    @if (authService.podeAcessar('veterinarios')) {
       <a routerLink="/veterinarios" routerLinkActive="active" class="menu-item">
         <span class="icon">🩺</span>
         <span>Veterinários</span>
       </a>
     }
 
-  <!-- Atendimentos -->
-  <a routerLink="/atendimentos" routerLinkActive="active" class="menu-item">
-    <span class="icon"><img src="icons8-estetoscópio-20.png" alt=""></span>
-    <span>Atendimentos</span>
-  </a>
+    @if (authService.podeAcessar('atendimentos')) {
+      <a routerLink="/atendimentos" routerLinkActive="active" class="menu-item">
+        <span class="icon"><img src="icons8-estetoscópio-20.png" alt=""></span>
+        <span>Atendimentos</span>
+      </a>
+    }
 
-  <!-- Prontuários -->
-  <a routerLink="/prontuarios" routerLinkActive="active" class="menu-item">
-    <span class="icon">📋</span>
-    <span>Prontuários</span>
-  </a>
+    @if (authService.podeAcessar('prontuarios')) {
+      <a routerLink="/prontuarios" routerLinkActive="active" class="menu-item">
+        <span class="icon">📋</span>
+        <span>Prontuários</span>
+      </a>
+    }
 
-  <!-- Financeiro -->
-  <a routerLink="/financeiro" routerLinkActive="active" class="menu-item">
-    <span class="icon">💰</span>
-    <span>Financeiro</span>
-  </a>
-</nav>
+    @if (authService.podeAcessar('financeiro')) {
+      <a routerLink="/financeiro" routerLinkActive="active" class="menu-item">
+        <span class="icon">💰</span>
+        <span>Financeiro</span>
+      </a>
+    }
+  </nav>
 
   <!-- Card do Perfil no Rodapé da Sidebar -->
   <div class="user-card">
     <img src="https://i.pravatar.cc/100?img=12" alt="Foto Doutor" class="user-avatar">
     <div class="user-info">
-      <strong>Dr. Fulano silva</strong>
+      <strong>{{ authService.usuarioLogado()?.nome }} - {{ authService.usuarioLogado()?.perfil}}</strong>
     </div>
     <button class="btn-logout" title="Sair">➔</button>
   </div>

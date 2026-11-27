@@ -22,6 +22,26 @@ export class AuthService {
   private apiUrl = 'http://localhost:8000';
   private readonly storageKey = 'vetcare_usuario';
 
+private readonly permissoes: Record<string, string[]> = {
+    veterinario: ['agenda', 'atendimentos', 'prontuarios'],
+  };
+
+  podeAcessar(secao: string): boolean {
+    const perfil = this.usuarioLogado()?.perfil?.toLowerCase();
+    if (!perfil) return false;
+    const permitidas = this.permissoes[perfil];
+    return permitidas ? permitidas.includes(secao) : true;
+  }
+
+  rotaInicial(): string {
+    return this.usuarioLogado()?.perfil === 'veterinario' ? '/agenda' : '/dashboard';
+  }
+
+
+
+
+
+
   usuarioLogado = signal<Usuario | null>(this.carregarUsuarioSalvo());
 
   private carregarUsuarioSalvo(): Usuario | null {
@@ -41,8 +61,11 @@ export class AuthService {
     );
   }
 
-  cadastrar(usuario: { nome: string; email: string; senha: string }): Observable<Usuario> {
+  cadastrar(usuario: { nome: string; email: string; senha: string ; perfil:string }): Observable<Usuario> {
     return this.http.post<Usuario>(`${this.apiUrl}/usuarios/`, usuario);
+  }
+  recuperarSenha(email: string): Observable<{ mensagem: string }> {
+    return this.http.post<{ mensagem: string }>(`${this.apiUrl}/usuarios/recuperar-senha`, { email });
   }
 
   logout(): void {

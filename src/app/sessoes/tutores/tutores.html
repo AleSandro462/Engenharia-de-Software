@@ -27,93 +27,115 @@
   </form>
 }
 
-<table>
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>CPF</th>
-      <th>Telefone</th>
-      <th>E-mail</th>
-      <th>Pets</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (t of filtrados(); track t.id) {
-      <tr [class.ativo]="t.id === selecionadoId()">
-        <td>{{ t.nome }}</td>
-        <td>{{ t.cpf }}</td>
-        <td>{{ t.telefone }}</td>
-        <td>{{ t.email || '-' }}</td>
-        <td>{{ t.animais.length }}</td>
-        <td class="botoes">
-          <button (click)="verAnimais(t)">Animais</button>
-          <button (click)="editarTutor(t)">Editar</button>
-          <button class="btn-perigo" (click)="excluirTutor(t)">Excluir</button>
-        </td>
+<div class="tabela-wrapper">
+  <table class="tabela-principal">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Telefone</th>
+        <th>E-mail</th>
+        <th>Pets</th>
+        <th></th>
       </tr>
-    } @empty {
-      <tr><td colspan="6">Nenhum tutor encontrado.</td></tr>
-    }
-  </tbody>
-</table>
-
-@if (selecionado(); as tutor) {
-  <section class="card">
-    <div class="topo">
-      <h3>Animais de {{ tutor.nome }}</h3>
-      <button class="btn-primario" (click)="novoAnimal()">+ Novo animal</button>
-    </div>
-
-    @if (animalForm(); as a) {
-      <form (ngSubmit)="salvarAnimal()">
-        <div class="grid">
-          <label>Nome* <input name="nome" [(ngModel)]="a.nome" required /></label>
-          <label>Espécie* <input name="especie" [(ngModel)]="a.especie" placeholder="Cão, Gato..." required /></label>
-          <label>Raça <input name="raca" [(ngModel)]="a.raca" /></label>
-          <label>Sexo*
-            <select name="sexo" [(ngModel)]="a.sexo">
-              <option value="M">Macho</option>
-              <option value="F">Fêmea</option>
-            </select>
-          </label>
-          <label>Data de nascimento <input name="data_nascimento" type="date" [(ngModel)]="a.data_nascimento" /></label>
-        </div>
-        <div class="botoes">
-          <button type="button" (click)="animalForm.set(null)">Cancelar</button>
-          <button type="submit" class="btn-primario">{{ a.id ? 'Salvar alterações' : 'Adicionar' }}</button>
-        </div>
-      </form>
-    }
-
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Espécie</th>
-          <th>Raça</th>
-          <th>Sexo</th>
-          <th>Nascimento</th>
-          <th></th>
+    </thead>
+    <tbody>
+      @for (t of filtrados(); track t.id) {
+        <!-- LINHA DO TUTOR (CLICÁVEL) -->
+        <tr
+          class="linha-tutor"
+          [class.ativo]="t.id === selecionadoId()"
+          (click)="verAnimais(t)"
+        >
+          <td><strong>{{ t.nome }}</strong></td>
+          <td>{{ t.cpf }}</td>
+          <td>{{ t.telefone }}</td>
+          <td>{{ t.email || '-' }}</td>
+          <td>{{ t.animais.length }}</td>
+          <td class="botoes" (click)="$event.stopPropagation()">
+            <button
+              class="btn-animais"
+              [class.aberto]="t.id === selecionadoId()"
+              (click)="verAnimais(t)"
+            >
+              Animais <span class="seta" [class.rotacionada]="t.id === selecionadoId()">▾</span>
+            </button>
+            <button (click)="editarTutor(t)">Editar</button>
+            <button class="btn-perigo" (click)="excluirTutor(t)">Excluir</button>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        @for (a of tutor.animais; track a.id) {
-          <tr>
-            <td>{{ a.nome }}</td>
-            <td>{{ a.especie }}</td>
-            <td>{{ a.raca || '-' }}</td>
-            <td>{{ a.sexo === 'M' ? 'Macho' : 'Fêmea' }}</td>
-            <td>{{ a.data_nascimento ? (a.data_nascimento | date: 'dd/MM/yyyy') : '-' }}</td>
-            <td class="botoes">
-              <button (click)="editarAnimal(a)">Editar</button>
-              <button class="btn-perigo" (click)="excluirAnimal(a)">Excluir</button>
-            </td>
-          </tr>
-        } @empty {
-          <tr><td colspan="6">Nenhum animal cadastrado para este tutor.</td></tr>
-        }
-      </tbody>
-    </table>
-  </section>
-}
+
+        <!-- GAVETA DESLIZANTE DE ANIMAIS LOGO ABAIXO DO TUTOR -->
+        <tr class="linha-detalhes">
+          <td colspan="6" class="celula-detalhes">
+            <div class="gaveta" [class.expandida]="t.id === selecionadoId()">
+              <div class="gaveta-conteudo">
+                <div class="painel-animais">
+                  <div class="topo painel-topo">
+                    <h3>Animais de {{ t.nome }}</h3>
+                    <button class="btn-primario" (click)="novoAnimal()">+ Novo animal</button>
+                  </div>
+
+                  @if (t.id === selecionadoId() && animalForm(); as a) {
+                    <form class="form-animal-interno" (ngSubmit)="salvarAnimal()">
+                      <div class="grid">
+                        <label>Nome* <input name="nome" [(ngModel)]="a.nome" required /></label>
+                        <label>Espécie* <input name="especie" [(ngModel)]="a.especie" placeholder="Cão, Gato..." required /></label>
+                        <label>Raça <input name="raca" [(ngModel)]="a.raca" /></label>
+                        <label>Sexo*
+                          <select name="sexo" [(ngModel)]="a.sexo">
+                            <option value="M">Macho</option>
+                            <option value="F">Fêmea</option>
+                          </select>
+                        </label>
+                        <label>Data de nascimento <input name="data_nascimento" type="date" [(ngModel)]="a.data_nascimento" /></label>
+                      </div>
+                      <div class="botoes">
+                        <button type="button" (click)="animalForm.set(null)">Cancelar</button>
+                        <button type="submit" class="btn-primario">{{ a.id ? 'Salvar alterações' : 'Adicionar' }}</button>
+                      </div>
+                    </form>
+                  }
+
+                  <table class="tabela-interna">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Espécie</th>
+                        <th>Raça</th>
+                        <th>Sexo</th>
+                        <th>Nascimento</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (a of t.animais; track a.id) {
+                        <tr>
+                          <td><strong>{{ a.nome }}</strong></td>
+                          <td>{{ a.especie }}</td>
+                          <td>{{ a.raca || '-' }}</td>
+                          <td>{{ a.sexo === 'M' ? 'Macho' : 'Fêmea' }}</td>
+                          <td>{{ a.data_nascimento ? (a.data_nascimento | date: 'dd/MM/yyyy') : '-' }}</td>
+                          <td class="botoes">
+                            <button (click)="editarAnimal(a)">Editar</button>
+                            <button class="btn-perigo" (click)="excluirAnimal(a)">Excluir</button>
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="6" class="vazio">Nenhum animal cadastrado para este tutor.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6" class="vazio">Nenhum tutor encontrado.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

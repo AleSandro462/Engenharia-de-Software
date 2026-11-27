@@ -1,0 +1,38 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>VetCare</h2>
+      <p>Informe seu e-mail para recuperar a senha</p>
+    </div>
+
+    @if (erroMensagem) {
+      <div class="alert-error">{{ erroMensagem }}</div>
+    }
+
+    @if (sucessoMensagem) {
+      <div class="alert-success">{{ sucessoMensagem }}</div>
+    }
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="seu@email.com"
+          required
+        />
+      </div>
+
+      <button type="submit" [disabled]="carregando">
+        {{ carregando ? 'Enviando...' : 'Enviar instruções' }}
+      </button>
+
+      <div class="footer-link">
+        Lembrou a senha? <a routerLink="/login">Voltar ao login</a>
+      </div>
+    </form>
+  </div>
+</div>

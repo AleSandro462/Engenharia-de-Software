@@ -1,1 +1,115 @@
-<p>atendimentos works!</p>
+<div class="pagina-container">
+  <div class="topo">
+    <div>
+      <h2>Atendimentos Clínicos</h2>
+      <p class="subtitulo">Fila de pacientes aguardando consulta ou procedimento</p>
+    </div>
+    <button type="button" class="btn-secundario" (click)="carregarFila()" [disabled]="carregando()">
+      {{ carregando() ? 'Atualizando...' : 'Atualizar Fila' }}
+    </button>
+  </div>
+
+  @if (erro()) {
+    <div class="alerta alerta-erro">{{ erro() }}</div>
+  }
+
+  @if (sucesso()) {
+    <div class="alerta alerta-sucesso">{{ sucesso() }}</div>
+  }
+
+  <!-- PAINEL DE REGISTRO CLÍNICO (ABRE AO CLICAR EM ATENDER) -->
+  @if (consultaSelecionada(); as sel) {
+    <div class="card painel-atendimento">
+      <div class="painel-header">
+        <div>
+          <span class="badge badge-tipo">{{ sel.tipo }}</span>
+          <h3>Atendimento — {{ sel.animal_nome || 'Animal #' + sel.animal_id }}</h3>
+          <p class="meta-info">
+            Consulta #{{ sel.id }} • {{ sel.data | date:'dd/MM/yyyy' }} às {{ sel.hora_inicio.slice(0, 5) }}
+          </p>
+        </div>
+        <button type="button" class="btn-fechar" (click)="cancelarSelecao()" title="Fechar">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="campo">
+          <label>Diagnóstico Clínico <span class="obrigatorio">*</span></label>
+          <textarea
+            rows="3"
+            [(ngModel)]="diagnostico"
+            placeholder="Descreva a avaliação, sintomas observados e diagnóstico..."
+          ></textarea>
+        </div>
+
+        <div class="campo">
+          <label>Procedimentos Realizados</label>
+          <textarea
+            rows="2"
+            [(ngModel)]="procedimentos"
+            placeholder="Ex: Aplicação de vacina, exame físico, curativo, coleta..."
+          ></textarea>
+        </div>
+
+        <div class="campo">
+          <label>Observações e Prescrição</label>
+          <textarea
+            rows="2"
+            [(ngModel)]="observacoes"
+            placeholder="Medicamentos receitados, posologia e orientações ao tutor..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="painel-acoes">
+        <button type="button" class="btn-secundario" (click)="cancelarSelecao()" [disabled]="salvando()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-primario" (click)="confirmarRealizacao()" [disabled]="salvando()">
+          {{ salvando() ? 'Salvando...' : 'Confirmar Realização' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- CARD DA TABELA DE FILA DE ESPERA -->
+  <div class="card tabela-card">
+    @if (carregando()) {
+      <div class="estado-vazio">Carregando fila de atendimentos...</div>
+    } @else {
+      <table class="tabela-vetcare">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Tipo</th>
+            <th>Paciente</th>
+            <th>Tutor</th>
+            <th class="col-acao">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of consultas(); track c.id) {
+            <tr [class.linha-ativa]="consultaSelecionada()?.id === c.id">
+              <td>{{ c.data | date:'dd/MM/yyyy' }}</td>
+              <td><strong>{{ c.hora_inicio.slice(0, 5) }}</strong></td>
+              <td><span class="badge badge-tipo">{{ c.tipo }}</span></td>
+              <td><strong>{{ c.animal_nome || 'ID #' + c.animal_id }}</strong></td>
+              <td class="texto-suave">{{ c.tutor_nome || 'ID #' + c.tutor_id }}</td>
+              <td class="col-acao">
+                <button type="button" class="btn-primario btn-sm" (click)="iniciarAtendimento(c)">
+                  Atender
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="estado-vazio">
+                Nenhuma consulta aguardando atendimento no momento.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

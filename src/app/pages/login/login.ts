@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth';
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef); // <-- 1. Adicionado para forçar atualização do ecrã
+  private cdr = inject(ChangeDetectorRef); 
 
   email = '';
   senha = '';
@@ -37,7 +37,7 @@ export class LoginComponent {
     }).subscribe({
       next: (resposta) => {
         this.carregando = false;
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([this.authService.rotaInicial()]);
       },
       error: (err) => {
         console.error('Erro recebido do backend:', err);

@@ -1,1 +1,117 @@
-<p>prontuarios works!</p>
+<div class="pagina-container">
+  <div class="topo">
+    <div>
+      <h2>Prontuários</h2>
+      <p class="subtitulo">Clique em um paciente para expandir seu histórico clínico</p>
+    </div>
+
+    <form class="barra-busca" (ngSubmit)="buscar()">
+      <input
+        type="text"
+        [(ngModel)]="busca"
+        name="busca"
+        placeholder="Buscar por animal, raça ou tutor..."
+      />
+      <button type="submit" class="btn-primario">Buscar</button>
+    </form>
+  </div>
+
+  @if (erro()) {
+    <div class="alerta-erro">{{ erro() }}</div>
+  }
+
+  <div class="card tabela-card">
+    <table class="tabela-vetcare">
+      <thead>
+        <tr>
+          <th>Animal</th>
+          <th>Espécie</th>
+          <th>Raça</th>
+          <th>Tutor</th>
+          <th class="col-seta"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of animais(); track a.id) {
+          <!-- LINHA PRINCIPAL DO ANIMAL -->
+          <tr
+            class="linha-animal"
+            [class.aberta]="animalAbertoId() === a.id"
+            (click)="toggleProntuario(a.id)"
+          >
+            <td><strong>{{ a.nome}}  @if(a.especie ==="Gato" ) {
+                  🐱
+              
+            }@else{@if(a.especie ==="Cão"){🐶}
+            @else {🐾}}
+          </strong></td>
+            <td>{{ a.especie }}</td>
+            <td>{{ a.raca || '—' }}</td>
+            <td class="texto-suave">{{ a.tutor_nome }}</td>
+            <td class="col-seta">
+              <span class="seta" [class.rotacionada]="animalAbertoId() === a.id">▾</span>
+            </td>
+          </tr>
+
+          <!-- PAINEL DESLIZANTE LOGO ABAIXO DO ANIMAL -->
+          <tr class="linha-detalhes">
+            <td colspan="5" class="celula-detalhes">
+              <div class="gaveta" [class.expandida]="animalAbertoId() === a.id">
+                <div class="gaveta-conteudo">
+                  <div class="painel-interno">
+                    @if (animalAbertoId() === a.id) {
+                      @if (carregandoProntuario()) {
+                        <p class="estado-texto">Carregando histórico clínico...</p>
+                      } @else if (prontuarioAtual(); as pront) {
+                        <div class="painel-topo">
+                          <h4>Histórico Clínico — {{ a.nome }}</h4>
+                          <span class="badge-contagem">
+                            {{ pront.atendimentos.length }} registro(s)
+                          </span>
+                        </div>
+
+                        @if (pront.atendimentos.length === 0) {
+                          <p class="estado-texto">Nenhum atendimento registrado para este paciente.</p>
+                        } @else {
+                          <div class="lista-atendimentos">
+                            @for (item of pront.atendimentos; track $index) {
+                              <div class="card-atendimento">
+                                <div class="card-atendimento-header">
+                                  <div>
+                                    <span class="badge-tipo">{{ item.tipo }}</span>
+                                    <strong class="vet-nome">Dr(a). {{ item.veterinario_nome }}</strong>
+                                  </div>
+                                  <span class="data-hora">
+                                    {{ item.data | date:'dd/MM/yyyy' }} às {{ item.hora.slice(0, 5) }}
+                                  </span>
+                                </div>
+
+                                <div class="card-atendimento-corpo">
+                                  <p><strong>Diagnóstico:</strong> {{ item.diagnostico }}</p>
+                                  @if (item.procedimentos) {
+                                    <p><strong>Procedimentos:</strong> {{ item.procedimentos }}</p>
+                                  }
+                                  @if (item.observacoes) {
+                                    <p><strong>Observações:</strong> {{ item.observacoes }}</p>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        }
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="estado-vazio">Nenhum animal encontrado.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
